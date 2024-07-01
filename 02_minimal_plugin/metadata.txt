@@ -1,0 +1,8 @@
+[general]
+name=Minimal Plugin 02
+description=Minimal Plugin 02
+version=1.0
+qgisMinimumVersion=2.99
+qgisMaximumVersion=3.99
+author=Tudor Bărăscu
+email=tudor.barascu@qtibia.ro

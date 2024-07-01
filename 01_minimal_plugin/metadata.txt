@@ -1,0 +1,8 @@
+[general]
+name=Minimal Plugin 01
+description=Minimal Plugin 01
+version=1.0
+qgisMinimumVersion=2.99
+qgisMaximumVersion=3.99
+author=Martin Dobias, Tudor Bărăscu
+email=wonder.sk@gmail.com; tudor.barascu@qtibia.ro
