@@ -1,0 +1,38 @@
+from qgis.PyQt import QtWidgets
+
+debug_action = 1  # Change to 0 to enable debug
+
+if debug_action == 0:
+    QgsMessageLog.logMessage('Vana fid: ' + str( [% $id %] ),  level=Qgis.Info)
+    QgsMessageLog.logMessage('Câmpul "id" este: ' + str( [%"id"%] ),  level=Qgis.Info)
+
+# Dacă feature-ul nu este salvat
+if [% $id %] == 0:
+    QtWidgets.QMessageBox.warning(None, "Acțiunea nu poate continua!", "Vana trebuie salvată înainte de a i se crea geometria capului tijei!")
+else:
+    lyr_id = 'valve20150408152824123'
+    lyr_tree_obj = QgsProject.instance().layerTreeRoot().findLayer(lyr_id)
+    lyr = QgsProject.instance().mapLayer(lyr_id)
+    qgis.utils.iface.setActiveLayer(lyr)  # Set as the active layer
+    lyr.selectByIds([ [% $id %] ])  # Select the feature
+    lyr.startEditing()  # Start editing on the layer
+
+    if debug_action == 0:
+        QgsMessageLog.logMessage('Layerul cu geometria capului de tijă este ales, și anume: ' + lyr.name(), level=Qgis.Info)
+
+    # Dacă layerul cu cap tijă nu e vizibil fă-l fizibil
+    if not lyr_tree_obj.isVisible():
+        lyr_tree_obj.setItemVisibilityChecked(True)
+
+        if debug_action == 0:
+            QgsMessageLog.logMessage('Layerul ' + lyr.name() + ' era invizibil, acum e făcut vizibil', level=Qgis.Info)
+
+    if lyr.getFeature( [% $id %] ).geometry():  # Vezi dacă vana are deja cap tijă
+        qgis.utils.iface.messageBar().pushMessage( 'Atenție',
+        'Vane are deja cap tijă! Unealta a selectat automat geometria din stratul ' + lyr.name()
+        + ', a pornit editarea pe acesta și a activat unealta de editare vertecși! Dacă doriți, puteți alege altă unealtă de modificare a geometriei!',
+        Qgis.Warning, duration=20 )
+        qgis.utils.iface.actionVertexTool().trigger()  # Activez unealta de vertecsi
+        qgis.utils.iface.actionPanToSelected().trigger()  # Pan to geom
+    else:
+        qgis.utils.iface.actionAddPart().trigger()  # Activez unealta de AddPart
