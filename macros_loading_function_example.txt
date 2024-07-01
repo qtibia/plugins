@@ -1,0 +1,31 @@
+from qgis.core import *
+from qgis.gui import *
+from qgis.utils import iface
+from PyQt5.QtCore import qDebug
+import psycopg2
+
+from qgis.PyQt import QtWidgets
+import psycopg2
+import math
+
+@qgsfunction(args='auto', usesgeometry=True, group='QWorkshop', referenced_columns=[])
+def minority_report(input_value1, input_value2, input_value3):
+    """
+    This would be the help example
+    <h2>Examplu: afisare_regulament($currentfeature) -></h2>
+    <p><a href="https://.../gis/regulament/24">Regulament V4 PUG 2019</a><br>Aria suprapunere 1491.2 m2</p>
+    <p><a href="https://../gis/regulament/28">Regulament V6 PUG 2019</a><br>Aria suprapunere 1874, 1358.7 m2</p>
+    """
+
+    return round(input_value1 * input_value2 / input_value3, 1)
+
+
+
+def openProject():
+    pass
+
+def saveProject():
+    pass
+
+def closeProject():
+    QgsExpression.unregisterFunction('minority_report')
