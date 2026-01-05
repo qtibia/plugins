@@ -1,0 +1,27 @@
+[general]
+name=QTIBIA Topology - Coverage Cleaning
+qgisMinimumVersion=3.0
+qgisMaximumVersion=3.99
+description=Clean polygon coverages using PostGIS ST_CoverageClean function
+version=1.0
+author=QTIBIA Engineering
+email=tudor.barascu@qtibia.ro
+
+about=This plugin performs coverage cleaning on selected polygon features using PostGIS 3.6+ ST_CoverageClean function. Requires PostgreSQL 18.1+ with PostGIS 3.6+ and GEOS 3.14.1+. Select at least 2 polygon features, run the plugin, and it will clean the coverage by removing small gaps and fixing overlaps using the specified parameters.
+
+tracker=https://github.com/qtibia/qgis-plugins/issues
+repository=https://github.com/qtibia/qgis-plugins
+tags=postgis,topology,coverage,cleaning,polygon
+
+homepage=https://github.com/qtibia/qgis-plugins
+category=Vector
+icon=icon.svg
+experimental=False
+deprecated=False
+
+changelog=1.0 - Initial release
+    - Coverage cleaning using PostGIS ST_CoverageClean
+    - Support for pg_service connections
+    - Configurable gap tolerance, snapping distance, and merge strategy
+    - Custom SVG icon
+    - Performance optimizations with WKB and batch inserts
