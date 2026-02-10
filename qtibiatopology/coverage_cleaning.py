@@ -166,6 +166,14 @@ class CoverageCleaningSettingsDialog(QDialog):
         # Save to QSettings for persistence
         self.plugin.save_settings()
 
+        # Update toolbar widgets
+        self.plugin.gap_tolerance_widget.setValue(self.plugin.gap_tolerance)
+        self.plugin.snapping_distance_widget.setValue(self.plugin.snapping_distance)
+
+        # Update merge strategy combo
+        short_name = self.plugin.merge_strategy.replace("MERGE_", "")
+        self.plugin.merge_strategy_widget.setCurrentText(short_name)
+
         self.accept()
 
 
@@ -239,29 +247,102 @@ class CoverageCleaningPlugin:
         icon_path = os.path.join(self.plugin_dir, 'icon.svg')
         icon = QIcon(icon_path) if os.path.exists(icon_path) else QIcon()
 
+        # Create custom toolbar
+        self.toolbar = self.iface.addToolBar("Coverage Cleaning")
+        self.toolbar.setObjectName("CoverageCleaningToolbar")
+
         # Main action - Clean Coverage
         self.action = QAction(
             icon,
             'Clean Coverage',
             self.iface.mainWindow())
         self.action.triggered.connect(self.run)
-        self.iface.addToolBarIcon(self.action)
+        self.toolbar.addAction(self.action)
 
-        # Settings action
+        self.toolbar.addSeparator()
+
+        # Gap Tolerance control
+        self.toolbar.addWidget(QLabel(" Gap: "))
+        self.gap_tolerance_widget = QDoubleSpinBox()
+        self.gap_tolerance_widget.setDecimals(4)
+        self.gap_tolerance_widget.setRange(0.0, 1000.0)
+        self.gap_tolerance_widget.setSingleStep(0.01)
+        self.gap_tolerance_widget.setValue(self.gap_tolerance)
+        self.gap_tolerance_widget.setToolTip("Gap Maximum Width (map units)")
+        self.gap_tolerance_widget.setMaximumWidth(100)
+        self.gap_tolerance_widget.valueChanged.connect(self.on_gap_tolerance_changed)
+        self.toolbar.addWidget(self.gap_tolerance_widget)
+
+        # Snapping Distance control
+        self.toolbar.addWidget(QLabel(" Snap: "))
+        self.snapping_distance_widget = QDoubleSpinBox()
+        self.snapping_distance_widget.setDecimals(4)
+        self.snapping_distance_widget.setRange(-1.0, 1000.0)
+        self.snapping_distance_widget.setSingleStep(0.01)
+        self.snapping_distance_widget.setValue(self.snapping_distance)
+        self.snapping_distance_widget.setToolTip("Snapping Distance (-1=auto, 0=disabled)")
+        self.snapping_distance_widget.setMaximumWidth(100)
+        self.snapping_distance_widget.valueChanged.connect(self.on_snapping_distance_changed)
+        self.toolbar.addWidget(self.snapping_distance_widget)
+
+        # Merge Strategy control
+        self.toolbar.addWidget(QLabel(" Strategy: "))
+        self.merge_strategy_widget = QComboBox()
+        self.merge_strategy_widget.addItems([
+            "LONGEST_BORDER",
+            "MAX_AREA",
+            "MIN_AREA",
+            "MIN_INDEX"
+        ])
+        # Set current strategy
+        strategies = ["MERGE_LONGEST_BORDER", "MERGE_MAX_AREA", "MERGE_MIN_AREA", "MERGE_MIN_INDEX"]
+        if self.merge_strategy in strategies:
+            short_name = self.merge_strategy.replace("MERGE_", "")
+            self.merge_strategy_widget.setCurrentText(short_name)
+        self.merge_strategy_widget.setToolTip("Overlap Merge Strategy")
+        self.merge_strategy_widget.setMaximumWidth(150)
+        self.merge_strategy_widget.currentTextChanged.connect(self.on_merge_strategy_changed)
+        self.toolbar.addWidget(self.merge_strategy_widget)
+
+        # Settings action (for pg_service and verbose logging)
+        self.toolbar.addSeparator()
         self.settings_action = QAction(
-            'Coverage Cleaning Settings',
+            '⚙',
             self.iface.mainWindow())
+        self.settings_action.setToolTip("Coverage Cleaning Settings (pg_service, verbose logging)")
         self.settings_action.triggered.connect(self.show_settings_dialog)
+        self.toolbar.addAction(self.settings_action)
 
         # Add to Vector menu
         self.iface.addPluginToVectorMenu('&QTIBIA Topology', self.action)
         self.iface.addPluginToVectorMenu('&QTIBIA Topology', self.settings_action)
 
+    def on_gap_tolerance_changed(self, value):
+        """Handle gap tolerance change from toolbar."""
+        self.gap_tolerance = value
+        self.save_settings()
+        log_message(f"Gap tolerance changed to: {value}")
+
+    def on_snapping_distance_changed(self, value):
+        """Handle snapping distance change from toolbar."""
+        self.snapping_distance = value
+        self.save_settings()
+        log_message(f"Snapping distance changed to: {value}")
+
+    def on_merge_strategy_changed(self, text):
+        """Handle merge strategy change from toolbar."""
+        self.merge_strategy = f"MERGE_{text}"
+        self.save_settings()
+        log_message(f"Merge strategy changed to: {self.merge_strategy}")
+
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
-        self.iface.removeToolBarIcon(self.action)
         self.iface.removePluginVectorMenu('&QTIBIA Topology', self.action)
         self.iface.removePluginVectorMenu('&QTIBIA Topology', self.settings_action)
+
+        # Remove toolbar
+        del self.toolbar
+
         del self.action
         del self.settings_action
 
