@@ -29,7 +29,12 @@ import os.path
 
 from qgis.core import (QgsProject, QgsFeature, QgsGeometry, Qgis,
                        QgsWkbTypes, QgsVectorLayer, QgsMessageLog)
-import psycopg
+try:
+    import psycopg
+except ImportError:
+    import pip
+    pip.main(["install", "psycopg[binary]"])
+    import psycopg
 
 
 def log_message(message, level=Qgis.Info, verbose=True):
@@ -214,7 +219,7 @@ class CoverageCleaningPlugin:
         self.gap_tolerance = float(self.settings.value("gap_tolerance", 0.01))
         self.snapping_distance = float(self.settings.value("snapping_distance", -1))
         self.merge_strategy = self.settings.value("merge_strategy", "MERGE_LONGEST_BORDER")
-        self.verbose_logging = self.settings.value("verbose_logging", True, type=bool)
+        self.verbose_logging = self.settings.value("verbose_logging", False, type=bool)
 
     def tr(self, message):
         """Get the translation for a string using Qt translation API.

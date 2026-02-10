@@ -29,22 +29,22 @@ This document describes performance optimizations implemented in the Coverage Cl
 - **Why**: Temp table operations don't need intermediate commits
 
 ### 5. **Optional Verbose Logging**
-- **Setting**: `self.verbose_logging = True` (default) or `False`
-- **Benefit**: 10-20% faster when disabled
+- **Setting**: `self.verbose_logging = False` (default) or `True`
+- **Benefit**: 10-20% faster when disabled (default)
 - **Why**: Eliminates I/O and string formatting overhead
 
 ## Performance Tuning
 
-### Disable Verbose Logging for Production
+### Enable Verbose Logging for Debugging
 
-Edit `coverage_cleaning.py` line 94:
+Verbose logging is disabled by default. To enable it, use the Settings dialog or edit `coverage_cleaning.py`:
 
 ```python
-# For debugging (default)
-self.verbose_logging = True
-
-# For production performance
+# Default (production performance)
 self.verbose_logging = False
+
+# For debugging
+self.verbose_logging = True
 ```
 
 ### PostgreSQL Tuning

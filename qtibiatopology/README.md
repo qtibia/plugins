@@ -16,7 +16,7 @@ A QGIS plugin for cleaning polygon coverages using PostGIS ST_CoverageClean func
 - PostgreSQL 18.1+
 - PostGIS 3.6+
 - GEOS 3.14.1+
-- Python psycopg (psycopg3) library
+- Python psycopg (psycopg3) library (auto-installed if missing)
 - Configured pg_service for database connection
 
 ## Installation
@@ -55,12 +55,8 @@ The plugin includes several performance optimizations:
 - **Binary format (WKB)** instead of text (WKT) for 2-5x faster geometry transfer
 - **Batch inserts** with `executemany()` for 5-10x faster data loading
 - **Optimized memory usage** by eliminating duplicate geometry storage
-- **Optional verbose logging** - disable for 10-20% performance gain
-
-For large datasets (100+ features), edit `coverage_cleaning.py` line 94:
-```python
-self.verbose_logging = False  # Disable for better performance
-```
+- **Optional verbose logging** - disabled by default for better performance
+- **Auto-installs psycopg** if not found, using pip
 
 See [PERFORMANCE.md](PERFORMANCE.md) for detailed optimization guide and benchmarks.
 
